@@ -1,6 +1,8 @@
 const functions = require("firebase-functions");
+const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
+const nodemailer = require("nodemailer");
 const { check, validationResult } = require("express-validator/check");
 
 const app = express();
@@ -19,16 +21,13 @@ app.post(
       .not()
       .isEmpty(),
     check("email", "Het invullen van uw e-mailadres is verplicht")
-      .isEmail()
       .not()
-      .isEmpty(),
+      .isEmpty()
+      .isEmail(),
     check("phone", "Het invullen van uw telefoonnummer is verplicht")
       .not()
       .isEmpty(),
     check("message", "Het invullen van een bericht is verplicht")
-      .not()
-      .isEmpty(),
-    check("lastName", "Het invullen van een bericht is verplicht")
       .not()
       .isEmpty()
   ],
@@ -37,8 +36,6 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
-
-    res.status(200).json({ message: "email route works" });
 
     ("use strict");
     async function main() {
@@ -82,12 +79,12 @@ app.post(
 
       // create reusable transporter object using the default SMTP transport
       let transporter = nodemailer.createTransport({
-        host: process.env.TRANSPORTER_HOST,
-        port: process.env.TRANSPORTER_PORT,
+        host: functions.config().transporter.host,
+        port: functions.config().transporter.port,
         secure: true, // true for 465, false for other ports
         auth: {
-          user: process.env.TRANSPORTER_USERNAME, //account.user, // generated ethereal user
-          pass: process.env.TRANSPORTER_PASSWORD //account.pass // generated ethereal password
+          user: functions.config().transporter.username, //account.user, // generated ethereal user
+          pass: functions.config().transporter.password //account.pass // generated ethereal password
         },
         tls: {
           rejectUnauthorized: false
@@ -102,9 +99,16 @@ app.post(
         replyTo: req.body.email,
         subject: req.body.subject, // Subject line
         text: req.body.message, // plain text body
+        attachments: [
+          {
+            fileName: req.body.title,
+            streamSource: fs.createReadStream(req.files.image.path)
+          }
+        ],
         html: htmlEmail // html body
       };
 
+      console.log(mailOptions);
       // send mail with defined transport object
       let info = await transporter.sendMail(mailOptions);
 
@@ -115,9 +119,9 @@ app.post(
 
       // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
       // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
-      return res.status(201).json({ confirmation: true });
     }
     main().catch(console.error);
+    return res.status(201).json({ message: "Email has been sent" });
   }
 );
 
