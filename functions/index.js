@@ -5,6 +5,13 @@ const cors = require("cors");
 const nodemailer = require("nodemailer");
 const { check, validationResult } = require("express-validator/check");
 
+// const admin = require("firebase-admin");
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(functions.config().serviceaccount.key),
+//   databaseURL: "https://ansa-techniek.firebaseio.com"
+// });
+
 const app = express();
 
 app.use(cors({ origin: true }));
