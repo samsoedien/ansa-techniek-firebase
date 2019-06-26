@@ -3,7 +3,7 @@ const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
-const { check, validationResult } = require("express-validator/check");
+const { body, validationResult } = require("express-validator");
 
 // const admin = require("firebase-admin");
 
@@ -21,22 +21,26 @@ app.use(express.json({ extended: false }));
 app.post(
   "/",
   [
-    check("firstName", "Het invullen van uw voornaam is verplicht")
+    body("firstName", "Het invullen van uw voornaam is verplicht")
       .not()
       .isEmpty(),
-    check("lastName", "Het invullen van uw achternaam is verplicht")
+    body("lastName", "Het invullen van uw achternaam is verplicht")
       .not()
       .isEmpty(),
-    check("email", "Het invullen van uw e-mailadres is verplicht")
+    body("email", "Het invullen van uw e-mailadres is verplicht")
       .not()
       .isEmpty()
-      .isEmail(),
-    check("phone", "Het invullen van uw telefoonnummer is verplicht")
+      .isEmail()
+      .withMessage("Dit is geen geldig e-mailadres")
+      .normalizeEmail(),
+    body("phone", "Het invullen van uw telefoonnummer is verplicht")
       .not()
       .isEmpty(),
-    check("message", "Het invullen van een bericht is verplicht")
+    body("message", "Het invullen van een bericht is verplicht")
       .not()
       .isEmpty()
+      .isLength({ min: 12 })
+      .withMessage("Uw bericht moet minimaal 12 karakters bevatten")
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -106,12 +110,12 @@ app.post(
         replyTo: req.body.email,
         subject: req.body.subject, // Subject line
         text: req.body.message, // plain text body
-        attachments: [
-          {
-            fileName: req.body.title,
-            streamSource: fs.createReadStream(req.files.image.path)
-          }
-        ],
+        // attachments: [
+        //   {
+        //     fileName: req.body.title,
+        //     streamSource: fs.createReadStream(req.files.image.path)
+        //   }
+        // ],
         html: htmlEmail // html body
       };
 
