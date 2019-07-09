@@ -57,7 +57,7 @@ app.post(
       const htmlEmail = `
       <p>Geachte ${req.body.firstName} ${req.body.lastName},</p>
 
-      <p class="default-style">Bedankt voor uw bericht. Ik zal zo spoedig contact met u opnemen.</p>
+      <p class="default-style">Bedankt voor uw bericht. Ik zal zo spoedig mogelijk contact met u opnemen.</p>
         
       <h3>Uw contactgegevens</h3>
       <ul>
@@ -104,11 +104,13 @@ app.post(
 
       // setup email data with unicode symbols
       let mailOptions = {
-        from: '"Samsoedien, A" <info@ansa-techniek.nl>', // sender address
+        from: '"No-Reply Ansa-Techniek" <noreply@ansa-techniek.nl>', // sender address
         to: req.body.email, // list of receivers
         cc: "info@ansa-techniek.nl",
         replyTo: req.body.email,
-        subject: req.body.subject, // Subject line
+        subject: `Bevestiging Bericht Ansa-Techniek - Onderwerp: ${
+          req.body.subject
+        }`, // Subject line
         text: req.body.message, // plain text body
         // attachments: [
         //   {
