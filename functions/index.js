@@ -70,8 +70,15 @@ app.post(
         <li>Omschrijving: ${req.body.subject}</li>
         <li>Offerte: ${
           req.body.offerte
-            ? "Er is een verzoek ingedient voor een offerte"
+            ? "Er is een verzoek ingediend voor een offerte"
             : "Niet van toepassing"
+        }</li>
+        <li>Voorkeur datum uitvoering: ${
+          req.body.preferredDate
+            ? req.body.date === null
+              ? "Er is geen datum gespecificeerd"
+              : req.body.date
+            : "Er is geen voorkeur voor een datum van uitvoering ingediend"
         }</li>
       </ul>
       <h3>Uw bericht</h3>
